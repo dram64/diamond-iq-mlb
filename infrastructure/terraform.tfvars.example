@@ -1,0 +1,4 @@
+aws_region      = "us-east-1"
+environment     = "prod"
+github_repo     = "dram64/diamond-iq"
+frontend_origin = "http://localhost:5173"

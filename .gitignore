@@ -1,0 +1,106 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+
+# virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+
+# linters / type checkers
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+.pytype/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+tfplan
+!.terraform.lock.hcl
+
+# Terraform variable files — may contain secrets/PII (alert email,
+# API tokens, etc.). Track variables.tf instead, supply values via
+# terraform.tfvars locally or TF_VAR_* env vars in CI.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Bootstrap stack uses local state; keep it out of git
+infrastructure/bootstrap/terraform.tfstate
+infrastructure/bootstrap/terraform.tfstate.backup
+infrastructure/bootstrap/.terraform/
+
+# Captured bootstrap output — values are also embedded in infrastructure/main.tf
+infrastructure/backend_config.txt
+
+# Main stack local artifacts (.terraform.lock.hcl is tracked, rest is not)
+infrastructure/.terraform/
+
+# Lambda package artifacts
+functions/**/build/
+functions/**/*.zip
+infrastructure/modules/lambda/.build/
+
+# Node / JS
+node_modules/
+dist/
+dist-ssr/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# AWS credentials (never commit)
+.aws/
+*.pem
+*_accessKeys.csv
+*_credentials.csv
+
+# IDE / editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Pre-monorepo frontend git history, kept for reference
+.frontend-git-backup/
+
+# Design-tool prototype artifacts (kept locally for reference)
+design-export/
+
+# env files
+.env
+.env.local
+.env.*.local

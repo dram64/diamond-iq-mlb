@@ -1,0 +1,60 @@
+[project]
+name = "diamond-iq"
+version = "0.1.0"
+description = "Baseball analytics backend - live MLB data ingestion and API."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "boto3>=1.35",
+    "moto[dynamodb]>=5.0",
+    "pytest>=8.3",
+    "pytest-mock>=3.14",
+    "responses>=0.25",
+    "ruff>=0.7",
+    "black>=24.10",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    "frontend",
+    "infrastructure/.terraform",
+    ".venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "SIM",
+    "N",
+]
+ignore = [
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ARG001"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = '''
+(
+    frontend/
+  | infrastructure/\.terraform/
+  | \.venv/
+)
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["functions"]

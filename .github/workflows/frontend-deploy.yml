@@ -1,0 +1,123 @@
+name: frontend-deploy
+
+# Pushes the React SPA bundle to S3 and invalidates the CloudFront
+# distribution that serves it. The Terraform-managed
+# infrastructure/modules/frontend_hosting/ owns the bucket + distribution
+# (Phase 5J); this workflow is the *application* deploy.
+#
+# Triggered only on changes under frontend/** or to this workflow file —
+# Terraform / Lambda changes route through backend-deploy.yml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: frontend-deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ROLE_ARN: arn:aws:iam::334856751632:role/diamond-iq-github-deploy
+  # The deployed API distribution (Phase 9). Baked into the bundle at
+  # build time as VITE_API_URL; production fetches go straight to it.
+  VITE_API_URL: https://d17hrttnkrygh8.cloudfront.net
+  VITE_WS_URL: wss://cw8v5hucna.execute-api.us-east-1.amazonaws.com/production
+  VITE_HIDE_DEMO_BADGES: 'false'
+  # Phase 5J resources — populated from terraform output. Hardcoded here to
+  # keep the workflow simple; if these ever change, update this file in the
+  # same commit as the Terraform.
+  S3_BUCKET: diamond-iq-frontend
+
+jobs:
+  deploy:
+    name: Build + S3 sync + CloudFront invalidate
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: frontend-deploy-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sanity check assumed identity
+        run: aws sts get-caller-identity
+
+      - name: Setup Node
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_URL: ${{ env.VITE_API_URL }}
+          VITE_WS_URL: ${{ env.VITE_WS_URL }}
+          VITE_HIDE_DEMO_BADGES: ${{ env.VITE_HIDE_DEMO_BADGES }}
+        run: npm run build
+
+      - name: Resolve CloudFront distribution id
+        id: cf
+        run: |
+          DIST_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Aliases.Items != null && contains(Aliases.Items, 'diamond-iq.dram-soc.org')].Id | [0]" \
+            --output text)
+          if [ -z "$DIST_ID" ] || [ "$DIST_ID" = "None" ]; then
+            echo "::error::Could not resolve CloudFront distribution id for diamond-iq.dram-soc.org"
+            exit 1
+          fi
+          echo "distribution_id=$DIST_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Sync to S3 (--delete to remove orphaned files)
+        working-directory: frontend
+        run: |
+          aws s3 sync dist/ "s3://${{ env.S3_BUCKET }}/" \
+            --delete \
+            --exact-timestamps \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html"
+          # index.html gets a short cache so newly-deployed bundles are picked
+          # up promptly even if the CloudFront invalidation lags.
+          aws s3 cp dist/index.html "s3://${{ env.S3_BUCKET }}/index.html" \
+            --cache-control "public, max-age=60, must-revalidate" \
+            --content-type "text/html"
+
+      - name: Invalidate CloudFront cache
+        id: invalidate
+        run: |
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.cf.outputs.distribution_id }} \
+            --paths '/*' \
+            --query 'Invalidation.Id' --output text)
+          echo "invalidation_id=$INVALIDATION_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Write deploy summary
+        run: |
+          {
+            echo "## Frontend deploy summary"
+            echo
+            echo "| Output | Value |"
+            echo "| --- | --- |"
+            echo "| Live URL | https://diamond-iq.dram-soc.org |"
+            echo "| S3 bucket | \`${{ env.S3_BUCKET }}\` |"
+            echo "| Distribution | \`${{ steps.cf.outputs.distribution_id }}\` |"
+            echo "| Invalidation | \`${{ steps.invalidate.outputs.invalidation_id }}\` |"
+            echo "| Commit | \`${{ github.sha }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
