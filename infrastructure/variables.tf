@@ -13,7 +13,7 @@ variable "environment" {
 variable "github_repo" {
   description = "GitHub repository (owner/name) trusted by the OIDC deploy role."
   type        = string
-  default     = "dram64/diamond-iq"
+  default     = "dram64/diamond-iq-mlb"
 }
 
 variable "frontend_origin" {

@@ -79,8 +79,6 @@ def fetch_game(game_pk: int, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> dic
     return _request(url, timeout=timeout)
 
 
-
-
 def _request_with_backoff(url: str, *, timeout: float, max_retries: int = 3) -> Any:
     """Issue a request, backing off exponentially on 5xx responses.
 
@@ -139,8 +137,6 @@ def fetch_people_bulk(
     url = f"{SCHEDULE_BASE}/people?personIds={csv}"
     payload = _request_with_backoff(url, timeout=timeout)
     return payload.get("people") or []
-
-
 
 
 def fetch_schedule_finals(

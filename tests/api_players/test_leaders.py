@@ -145,8 +145,6 @@ def test_leaders_k_maps_to_strikeouts(seeded_table, games_table_name) -> None:
     assert body["data"]["leaders"][0]["strikeouts"] >= body["data"]["leaders"][1]["strikeouts"]
 
 
-
-
 def _seed_statcast_pool(games_table_name: str) -> None:
     """Three Statcast rows with distinct nested-block values."""
     table = boto3.resource("dynamodb", region_name="us-east-1").Table(games_table_name)

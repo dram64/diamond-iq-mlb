@@ -630,8 +630,6 @@ def test_metric_values_match_summary(games_table_name, patched_now):
     assert metric_map["GamesFailed"] == result["games_failed"]
 
 
-
-
 def test_season_hitter_record_includes_woba_inputs(games_table_name, patched_now):
     """Season hitter records must carry the input primitives needs."""
     split = {

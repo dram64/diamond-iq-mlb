@@ -114,8 +114,6 @@ def _item_to_game(item: dict[str, Any]) -> Game:
     )
 
 
-
-
 _CONTENT_TYPES: frozenset[str] = frozenset({"RECAP", "PREVIEW", "FEATURED"})
 
 

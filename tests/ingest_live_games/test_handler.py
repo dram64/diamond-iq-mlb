@@ -374,8 +374,6 @@ def test_dedupes_same_game_pk_across_two_date_responses(mock_fetch, games_table_
     assert written[0].game_pk == 777
 
 
-
-
 @patch("ingest_live_games.handler.fetch_todays_schedule")
 def test_writes_preview_games(mock_fetch, games_table_name: str) -> None:
     yesterday, today = _expected_dates()

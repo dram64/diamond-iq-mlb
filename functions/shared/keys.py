@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 
-
 def player_global_pk() -> str:
     return "PLAYER#GLOBAL"
 
@@ -18,8 +17,6 @@ def roster_sk(person_id: int) -> str:
     return f"ROSTER#{person_id}"
 
 
-
-
 def daily_stats_pk(date_iso: str) -> str:
     return f"DAILYSTATS#{date_iso}"
 
@@ -34,8 +31,6 @@ def stats_pk(season: int, group: str) -> str:
 
 def stats_sk(person_id: int) -> str:
     return f"STATS#{person_id}"
-
-
 
 
 def standings_pk(season: int) -> str:
@@ -65,16 +60,12 @@ def hit_sk(launch_speed: float, game_pk: int, event_idx: int) -> str:
     return f"HIT#{inverted:04d}#{game_pk}#{event_idx}"
 
 
-
-
 def team_stats_pk(season: int) -> str:
     return f"TEAMSTATS#{season}"
 
 
 def team_stats_sk(team_id: int) -> str:
     return f"TEAMSTATS#{team_id}"
-
-
 
 
 def awards_pk() -> str:
@@ -98,8 +89,6 @@ def ai_analysis_pk(kind: str, ids: list[int], season: int) -> str:
 
 def ai_analysis_sk() -> str:
     return "ANALYSIS"
-
-
 
 
 def statcast_pk(season: int) -> str:
