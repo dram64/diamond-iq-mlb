@@ -1,19 +1,7 @@
 # Diamond IQ
 
 > **Live dashboard: <https://diamond-iq.dram-soc.org>** — real MLB data,
-> refreshed every minute. **Phase 8 — Stadium-warm visual identity.**
-> Re-skins the entire app on a deep-navy / cream / leather / muted-gold
-> palette grounded in night-game ballpark photography (see
-> [ADR 017](docs/adr/017-stadium-warm-visual-identity.md)). Plus a private
-> `/design-preview` route showing four candidate stat-display treatments
-> (percentile rings, diverging bars, stat battles, hexagonal radar) side-
-> by-side against live Judge-vs-Ohtani data — the user picks the winner
-> and Phase 8.5 rolls it across all comparison surfaces. Phase 7 ships
-> Baseball Savant Statcast metrics (avg/max EV, barrel %, hard-hit %, bat
-> speed, pull/center/oppo splits, xBA/xSLG/xwOBA, fastball velo + spin,
-> whiff %, chase %, xERA) to the Compare Players page. AI-generated content
-> uses Claude Sonnet 4.6 (recap + matchup previews) and Claude Haiku 3.5
-> (compare-page commentary, frontend integration pending) via Amazon Bedrock.
+> refreshed every minute.
 
 Cloud-native baseball analytics platform. The backend ingests live MLB
 game data into DynamoDB on a 1-minute schedule and serves it via an
